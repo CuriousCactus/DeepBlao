@@ -47,15 +47,9 @@ for cup in range(0,16):						# set up white bean cups
 		Wcups[cup] = Button(Wedges[cup], bg="grey", textvariable = WLabs[cup], foreground = "white")
 	else:
 		Wcups[cup] = Button(Wedges[cup], bg="white", textvariable = WLabs[cup])
-			
-	def leftclick(event):
-		Wmove(cup, 1)
-	def rightclick(event):
-		Wmove(cup, -1)
 		
-	Wcups[cup].bind('<Button-1>', leftclick)   # bind left mouse click ############# this doesn't currently work!!! #############
-	Wcups[cup].bind('<Button-3>', rightclick)  # bind right mouse click
-	Wcups[cup].pack()
+	Wcups[cup].bind('<Button-1>', lambda event, cup=cup: Wmove(cup, 1))   # bind left mouse click
+	Wcups[cup].bind('<Button-3>', lambda event, cup=cup: Wmove(cup, -1))  # bind right mouse click
 	Wcups[cup].grid(column=0, row=0, sticky=N+S+E+W)
 
 Bedges = {}									# frames for black bean cups
@@ -63,24 +57,26 @@ Bcups = {}									# buttons for black bean cups
 
 for cup in range(0,16):						# set up black bean cups
 
-    if cup >= 8:
-        Bcol = 15 - cup
-        Brow = 1
-    else:
-        Bcol = cup
-        Brow = 0
+	if cup >= 8:
+		Bcol = 15 - cup
+		Brow = 1
+	else:
+		Bcol = cup
+		Brow = 0
 
-    Bframe.grid_rowconfigure(Brow, weight=1)
-    Bframe.grid_columnconfigure(Bcol, weight=1)    
-    Bedges[cup] = Frame(Bframe, width = 30, height = 30, borderwidth=3, relief=SUNKEN)
-    Bedges[cup].grid(row=Brow, column=Bcol, sticky=N+S+E+W)
-    Bedges[cup].grid_columnconfigure(0, weight=1,minsize=30)
-    Bedges[cup].grid_rowconfigure(0, weight=1,minsize=30)
-    if Brow == 0 and Bcol == 4:
-    	Bcups[cup] = Button(Bedges[cup], bg="grey", textvariable = BLabs[cup], foreground = "white", command = lambda cup=cup: Bmove(cup, 1))
-    else:
-    	Bcups[cup] = Button(Bedges[cup], bg="black", textvariable = BLabs[cup], foreground = "white", command = lambda cup=cup: Bmove(cup, 1))
-    Bcups[cup].grid(column=0, row=0, sticky=N+S+E+W)
+	Bframe.grid_rowconfigure(Brow, weight=1)
+	Bframe.grid_columnconfigure(Bcol, weight=1)    
+	Bedges[cup] = Frame(Bframe, width = 30, height = 30, borderwidth=3, relief=SUNKEN)
+	Bedges[cup].grid(row=Brow, column=Bcol, sticky=N+S+E+W)
+	Bedges[cup].grid_columnconfigure(0, weight=1,minsize=30)
+	Bedges[cup].grid_rowconfigure(0, weight=1,minsize=30)
+	if Brow == 0 and Bcol == 4:
+		Bcups[cup] = Button(Bedges[cup], bg="grey", textvariable = BLabs[cup], foreground = "white")
+	else:
+		Bcups[cup] = Button(Bedges[cup], bg="black", textvariable = BLabs[cup], foreground = "white")
+	Bcups[cup].bind('<Button-1>', lambda event, cup=cup: Bmove(cup, 1))   # bind left mouse click
+	Bcups[cup].bind('<Button-3>', lambda event, cup=cup: Bmove(cup, -1))  # bind right mouse click
+	Bcups[cup].grid(column=0, row=0, sticky=N+S+E+W)
 
 
 # to update board
@@ -110,6 +106,7 @@ def Wmove(cuppick, direction):
 			WB[restartcup] += BB[7-curcup]
 			BB[7-curcup] = 0
 			curcup = restartcup							# starting from new position
+			sleep(1)									# so you can follow what's happening
 		board(WB,BB) 									# updating board
 		sleep(1)										# so you can follow what's happening
 
@@ -134,6 +131,7 @@ def Bmove(cuppick, direction):
 			BB[restartcup] += WB[7-curcup]
 			WB[7-curcup] = 0
 			curcup = restartcup
+			sleep(1)
 		board(WB,BB)
 		sleep(1)
 

@@ -3,32 +3,32 @@ from tkinter import *
 
 from time import sleep
 
-root = Tk()
+root = Tk()									# initialise tk
 
-root.config(borderwidth=5)
+root.config(borderwidth=5)					# set up window
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.resizable(0,0)
 
-WB=[2]*16
+WB=[2]*16									# intial bean configuration
 BB=[2]*16
 
-Wframe = Frame(root, bg="green")
+Wframe = Frame(root, bg="green")			# frame for white beans
 Wframe.grid(column=0, row=0, sticky=N+S+E+W)
 
-Bframe = Frame(root, bg="green")
+Bframe = Frame(root, bg="green")			# frame for black beans
 Bframe.grid(column=0, row=1, sticky=N+S+E+W)
 
-WLabs = []
+WLabs = []									# labels for bean cups
 BLabs = []
 for cup in range(0,16):
     WLabs.append(StringVar())
     BLabs.append(StringVar())
 
-Wedges = {}
-Wcups = {}
+Wedges = {}									# frames for white bean cups
+Wcups = {}									# buttons for white bean cups
 
-for cup in range(0,16):
+for cup in range(0,16):						# set up white bean cups
 
 	if cup >= 8:
 		Wcol = cup - 8
@@ -47,17 +47,21 @@ for cup in range(0,16):
 		Wcups[cup] = Button(Wedges[cup], bg="grey", textvariable = WLabs[cup], foreground = "white")
 	else:
 		Wcups[cup] = Button(Wedges[cup], bg="white", textvariable = WLabs[cup])
-	Wcups[cup].bind('<Button-1>', lambda event: Wmove(cup, 1))   # bind left mouse click ############# this doesn't currently work!!! #############
-	Wcups[cup].bind('<Button-3>', lambda event: Wmove(cup, -1))  # bind right mouse click
+			
+	def leftclick(event):
+		Wmove(cup, 1)
+	def rightclick(event):
+		Wmove(cup, -1)
+		
+	Wcups[cup].bind('<Button-1>', leftclick)   # bind left mouse click ############# this doesn't currently work!!! #############
+	Wcups[cup].bind('<Button-3>', rightclick)  # bind right mouse click
 	Wcups[cup].pack()
 	Wcups[cup].grid(column=0, row=0, sticky=N+S+E+W)
 
-Bedges = {}
-Bcups = {}
+Bedges = {}									# frames for black bean cups
+Bcups = {}									# buttons for black bean cups
 
-Brow = 0
-Bcol = 0
-for cup in range(0,16):
+for cup in range(0,16):						# set up black bean cups
 
     if cup >= 8:
         Bcol = 15 - cup
@@ -79,40 +83,39 @@ for cup in range(0,16):
     Bcups[cup].grid(column=0, row=0, sticky=N+S+E+W)
 
 
+# to update board
 def board(WB,BB):
     for cup in range(0,16):
         WLabs[cup].set(WB[cup])
         BLabs[cup].set(BB[cup])
         root.update_idletasks()
-        
+ 
+# to move white beans       
 def Wmove(cuppick, direction):
-	gains = 0
 	curcup = cuppick
 	curdir = direction
-	while WB[curcup] > 1:
+	while WB[curcup] > 1:								# check move allowed
 		startbeans = WB[curcup]
-		WB[curcup] = 0
-		for bean in range(0,startbeans):
-			curcup = (curcup + curdir) % 16
+		WB[curcup] = 0 									# pick up beans
+		for bean in range(0,startbeans):				
+			curcup = (curcup + curdir) % 16				# sow beans
 			WB[curcup] += 1
-		if curcup < 8 and WB[curcup] > 1 and BB[7-curcup]>0:		
-			if curcup < 2 or (curdir == 1 and curcup < 6):
+		if curcup < 8 and WB[curcup] > 1 and BB[7-curcup]>0:	# taking opponent's beans
+			if curcup < 2 or (curdir == 1 and curcup < 6):		# checking where to put them
 				restartcup = 0
 				curdir = 1
 			else:
 				restartcup = 7
 				curdir = -1
 			WB[restartcup] += BB[7-curcup]
-			gains += BB[7-curcup]
 			BB[7-curcup] = 0
-			curcup = restartcup
-		board(WB,BB)
-		sleep(1)
-	#return gains
+			curcup = restartcup							# starting from new position
+		board(WB,BB) 									# updating board
+		sleep(1)										# so you can follow what's happening
 
 
+# to move black beans  
 def Bmove(cuppick, direction):
-	gains = 0
 	curcup = cuppick
 	curdir = direction
 	while BB[curcup] > 1:
@@ -129,12 +132,10 @@ def Bmove(cuppick, direction):
 				restartcup = 7
 				curdir = -1
 			BB[restartcup] += WB[7-curcup]
-			gains += WB[7-curcup]
 			WB[7-curcup] = 0
 			curcup = restartcup
 		board(WB,BB)
 		sleep(1)
-	#return gains
 
 Movebutton = Button(root, bg="green", command=lambda: Wmove(1, 1))
 Movebutton.grid(column=0, row=2, sticky=N+S+E+W)
